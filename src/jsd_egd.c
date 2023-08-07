@@ -57,34 +57,36 @@ void jsd_egd_clear_errors(jsd_t* self, uint16_t slave_id) {
   assert(self);
   assert(self->ecx_context.slavelist[slave_id].eep_id == JSD_EGD_PRODUCT_CODE);
 
-  self->slave_states[slave_id].egd.pub.fault_code = JSD_EGD_FAULT_OKAY;
+  self->slave_states[slave_id].egd.pub.fault_code      = JSD_EGD_FAULT_OKAY;
   self->slave_states[slave_id].egd.pub.emcy_error_code = 0;
-
 }
 
 void jsd_egd_fault(jsd_t* self, uint16_t slave_id) {
   assert(self);
   assert(self->ecx_context.slavelist[slave_id].eep_id == JSD_EGD_PRODUCT_CODE);
-  
-  if (self->slave_configs[slave_id].egd.drive_cmd_mode == JSD_EGD_DRIVE_CMD_MODE_CS) {
-    assert(sizeof(jsd_egd_rxpdo_data_cs_mode_t) == self->ecx_context.slavelist[slave_id].Obytes);
-    self->slave_states[slave_id].egd.rxpdo_cs.target_position = self->slave_states[slave_id].egd.pub.actual_position;
+
+  if (self->slave_configs[slave_id].egd.drive_cmd_mode ==
+      JSD_EGD_DRIVE_CMD_MODE_CS) {
+    assert(sizeof(jsd_egd_rxpdo_data_cs_mode_t) ==
+           self->ecx_context.slavelist[slave_id].Obytes);
+    self->slave_states[slave_id].egd.rxpdo_cs.target_position =
+        self->slave_states[slave_id].egd.pub.actual_position;
     self->slave_states[slave_id].egd.rxpdo_cs.position_offset = 0;
     self->slave_states[slave_id].egd.rxpdo_cs.target_velocity = 0;
     self->slave_states[slave_id].egd.rxpdo_cs.velocity_offset = 0;
-    self->slave_states[slave_id].egd.rxpdo_cs.target_torque = 0;
-  }
-  else if (self->slave_configs[slave_id].egd.drive_cmd_mode == JSD_EGD_DRIVE_CMD_MODE_PROFILED) {
-    assert(sizeof(jsd_egd_rxpdo_data_profiled_mode_t) == self->ecx_context.slavelist[slave_id].Obytes);
-    self->slave_states[slave_id].egd.rxpdo_prof.target_position = self->slave_states[slave_id].egd.pub.actual_position;
-    self->slave_states[slave_id].egd.rxpdo_prof.target_velocity = 0;    
-    self->slave_states[slave_id].egd.rxpdo_prof.target_torque = 0;      
-  }
-  else {
+    self->slave_states[slave_id].egd.rxpdo_cs.target_torque   = 0;
+  } else if (self->slave_configs[slave_id].egd.drive_cmd_mode ==
+             JSD_EGD_DRIVE_CMD_MODE_PROFILED) {
+    assert(sizeof(jsd_egd_rxpdo_data_profiled_mode_t) ==
+           self->ecx_context.slavelist[slave_id].Obytes);
+    self->slave_states[slave_id].egd.rxpdo_prof.target_position =
+        self->slave_states[slave_id].egd.pub.actual_position;
+    self->slave_states[slave_id].egd.rxpdo_prof.target_velocity = 0;
+    self->slave_states[slave_id].egd.rxpdo_prof.target_torque   = 0;
+  } else {
     ERROR("bad drive command mode: %d",
           self->slave_configs[slave_id].egd.drive_cmd_mode);
-  }  
-
+  }
 }
 
 void jsd_egd_reset(jsd_t* self, uint16_t slave_id) {
@@ -97,7 +99,7 @@ void jsd_egd_reset(jsd_t* self, uint16_t slave_id) {
     self->slave_states[slave_id].egd.last_reset_time = now;
 
     // and clear the latched errors errors
-    self->slave_states[slave_id].egd.pub.fault_code = JSD_EGD_FAULT_OKAY;
+    self->slave_states[slave_id].egd.pub.fault_code      = JSD_EGD_FAULT_OKAY;
     self->slave_states[slave_id].egd.pub.emcy_error_code = 0;
 
   } else {
@@ -123,7 +125,8 @@ void jsd_egd_set_digital_output(jsd_t* self, uint16_t slave_id,
                                 uint8_t output_level) {
   assert(self);
   assert(self->ecx_context.slavelist[slave_id].eep_id == JSD_EGD_PRODUCT_CODE);
-  assert(digital_output_index > 0 && digital_output_index <= JSD_EGD_NUM_DIGITAL_OUTPUTS);
+  assert(digital_output_index > 0 &&
+         digital_output_index <= JSD_EGD_NUM_DIGITAL_OUTPUTS);
 
   if (self->slave_configs[slave_id].egd.drive_cmd_mode !=
       JSD_EGD_DRIVE_CMD_MODE_CS) {
@@ -525,15 +528,13 @@ uint16_t jsd_egd_tlc_to_do(const char tlc[2]) {
 }
 
 void jsd_egd_async_sdo_set_drive_position(jsd_t* self, uint16_t slave_id,
-                                          int32_t position, uint16_t app_id) 
-{
+                                          int32_t position, uint16_t app_id) {
   jsd_sdo_set_param_async(self, slave_id, jsd_egd_tlc_to_do("PX"), 1,
                           JSD_SDO_DATA_I32, &position, app_id);
 }
 
 void jsd_egd_async_sdo_set_unit_mode(jsd_t* self, uint16_t slave_id,
-                                     int32_t mode, uint16_t app_id) 
-{
+                                     int32_t mode, uint16_t app_id) {
   jsd_sdo_set_param_async(self, slave_id, jsd_egd_tlc_to_do("UM"), 1,
                           JSD_SDO_DATA_I32, &mode, app_id);
 }
@@ -597,7 +598,7 @@ bool jsd_egd_init(jsd_t* self, uint16_t slave_id) {
   }
   jsd_egd_set_peak_current(self, slave_id, config->egd.peak_current_limit);
 
-  state->pub.fault_code = JSD_EGD_FAULT_OKAY;
+  state->pub.fault_code      = JSD_EGD_FAULT_OKAY;
   state->pub.emcy_error_code = 0;
 
   return true;
@@ -713,7 +714,8 @@ int jsd_egd_config_PDO_mapping(ecx_contextt* ecx_context, uint16_t slave_id,
       0x0020, 0x1002,  // Status Register
       0x0008, 0x6061,  // Mode of Operation Display
       0x0020, 0x6079,  // DC link circuit voltage
-      0x0020, 0x2203,  // Application object (configed for drive temp)
+      0x0020, 0x20A0,  // auxiliary position
+      // 0x0020, 0x2203,  // Application object (configed for drive temp)
   };
 
   if (!jsd_sdo_set_ca_param_blocking(ecx_context, slave_id, 0x1A07, 0x00,
@@ -722,7 +724,7 @@ int jsd_egd_config_PDO_mapping(ecx_contextt* ecx_context, uint16_t slave_id,
     return 0;
   }
 
-  uint16_t map_input_TxPDO[] = {0x0003, 0x1A00, 0x1A07, 0x1A1D};
+  uint16_t map_input_TxPDO[] = {0x0002, 0x1A00, 0x1A07};
 
   if (!jsd_sdo_set_ca_param_blocking(ecx_context, slave_id, 0x1C13, 0x00,
                                      sizeof(map_input_TxPDO),
@@ -743,17 +745,20 @@ int jsd_egd_config_COE_params(ecx_contextt* ecx_context, uint16_t slave_id,
   }
 
   // Check that the drive supports PROF_POS mode
-  // It's not 100% clear what the mode of operation should be set to when 
-  //   advancing through the EGD state machine before ENABLE_OPERATION state is reached 
-  //   since DISABLED cananot be set by application. 
-  // When only velocity or current loops are tuned for a given drive, the PROF_POS mode
-  //   cannot be used and the drive will through an error.  
-  // In this version of JSD, we'll enforce that a position loop is tuned and check
-  //   it here. In future versions we may not need this requirement on current-only or 
-  //   velocity-only drives. 
+  // It's not 100% clear what the mode of operation should be set to when
+  //   advancing through the EGD state machine before ENABLE_OPERATION state is
+  //   reached since DISABLED cananot be set by application.
+  // When only velocity or current loops are tuned for a given drive, the
+  // PROF_POS mode
+  //   cannot be used and the drive will through an error.
+  // In this version of JSD, we'll enforce that a position loop is tuned and
+  // check
+  //   it here. In future versions we may not need this requirement on
+  //   current-only or velocity-only drives.
   uint32_t supported_drive_modes;
-  if (!jsd_sdo_get_param_blocking(ecx_context, slave_id, 0x6502, 0, JSD_SDO_DATA_U32,
-          (void*)&supported_drive_modes)) {
+  if (!jsd_sdo_get_param_blocking(ecx_context, slave_id, 0x6502, 0,
+                                  JSD_SDO_DATA_U32,
+                                  (void*)&supported_drive_modes)) {
     ERROR("EGD[%d] Could not read SDO 0x6502 Supported Drive Modes", slave_id);
     return 0;
   }
@@ -765,15 +770,23 @@ int jsd_egd_config_COE_params(ecx_contextt* ecx_context, uint16_t slave_id,
   bool prof_csv_sup    = (supported_drive_modes & (0x01 << 8));
   bool prof_cst_sup    = (supported_drive_modes & (0x01 << 9));
 
-  if(!prof_pos_sup) {
-    ERROR("EGD[%d] does not support PROF_POS mode. A valid position controller must be tuned before use", 
+  if (!prof_pos_sup) {
+    ERROR(
+        "EGD[%d] does not support PROF_POS mode. A valid position controller "
+        "must be tuned before use",
         slave_id);
-    MSG("EGD[%d] drive mode PROF_POS: %s",    slave_id, (prof_pos_sup    ? "Supported" : "Unsupported"));
-    MSG("EGD[%d] drive mode PROF_VEL: %s",    slave_id, (prof_vel_sup    ? "Supported" : "Unsupported"));
-    MSG("EGD[%d] drive mode PROF_TORQUE: %s", slave_id, (prof_torque_sup ? "Supported" : "Unsupported"));
-    MSG("EGD[%d] drive mode PROF_CSP: %s",    slave_id, (prof_csp_sup    ? "Supported" : "Unsupported"));
-    MSG("EGD[%d] drive mode PROF_CSV: %s",    slave_id, (prof_csv_sup    ? "Supported" : "Unsupported"));
-    MSG("EGD[%d] drive mode PROF_CST: %s",    slave_id, (prof_cst_sup    ? "Supported" : "Unsupported"));
+    MSG("EGD[%d] drive mode PROF_POS: %s", slave_id,
+        (prof_pos_sup ? "Supported" : "Unsupported"));
+    MSG("EGD[%d] drive mode PROF_VEL: %s", slave_id,
+        (prof_vel_sup ? "Supported" : "Unsupported"));
+    MSG("EGD[%d] drive mode PROF_TORQUE: %s", slave_id,
+        (prof_torque_sup ? "Supported" : "Unsupported"));
+    MSG("EGD[%d] drive mode PROF_CSP: %s", slave_id,
+        (prof_csp_sup ? "Supported" : "Unsupported"));
+    MSG("EGD[%d] drive mode PROF_CSV: %s", slave_id,
+        (prof_csv_sup ? "Supported" : "Unsupported"));
+    MSG("EGD[%d] drive mode PROF_CST: %s", slave_id,
+        (prof_cst_sup ? "Supported" : "Unsupported"));
     return 0;
   }
 
@@ -836,24 +849,24 @@ int jsd_egd_config_COE_params(ecx_contextt* ecx_context, uint16_t slave_id,
   }
 
   // set max motor speed
-  //   0x6080 accepts units of RPM and internally converts to 
+  //   0x6080 accepts units of RPM and internally converts to
   //   counts per second according to CA[18]. Every other speed in in cnts/sec
   //   so to keep the JSD api consistent perform the adjustment here.
   uint32_t ca_18;
-  if (!jsd_sdo_get_param_blocking(
-          ecx_context, slave_id, jsd_egd_tlc_to_do("CA"), 18, JSD_SDO_DATA_U32,
-          (void*)&ca_18)) {
+  if (!jsd_sdo_get_param_blocking(ecx_context, slave_id,
+                                  jsd_egd_tlc_to_do("CA"), 18, JSD_SDO_DATA_U32,
+                                  (void*)&ca_18)) {
     return 0;
   }
   MSG("EGD[%d] read CA[18] = %u cnts per rev", slave_id, ca_18);
 
-  double max_motor_speed_rpm = (config->egd.max_motor_speed) / (double)ca_18 * 60.0;
+  double max_motor_speed_rpm =
+      (config->egd.max_motor_speed) / (double)ca_18 * 60.0;
 
   int32_t max_motor_speed_rpm_int = (int32_t)max_motor_speed_rpm;
 
-  MSG("EGD[%d] max_motor_speed_rpm = %lf as int: %i", slave_id, 
-      max_motor_speed_rpm, 
-      max_motor_speed_rpm_int);
+  MSG("EGD[%d] max_motor_speed_rpm = %lf as int: %i", slave_id,
+      max_motor_speed_rpm, max_motor_speed_rpm_int);
 
   if (!jsd_sdo_set_param_blocking(ecx_context, slave_id, 0x6080, 0,
                                   JSD_SDO_DATA_I32,
@@ -866,13 +879,13 @@ int jsd_egd_config_COE_params(ecx_contextt* ecx_context, uint16_t slave_id,
 
 int jsd_egd_config_TLC_params(ecx_contextt* ecx_context, uint16_t slave_id,
                               jsd_slave_config_t* config) {
-
   if (!jsd_sdo_set_param_blocking(ecx_context, slave_id,
                                   jsd_egd_tlc_to_do("AC"), 1, JSD_SDO_DATA_U32,
                                   (void*)&config->egd.max_profile_accel)) {
-    ERROR("EGD[%d] failed to set AC to %u. AC may have a "
-          " minimum permissible profile around 10 counts, try a higher accel!",
-          slave_id, config->egd.max_profile_accel);
+    ERROR(
+        "EGD[%d] failed to set AC to %u. AC may have a "
+        " minimum permissible profile around 10 counts, try a higher accel!",
+        slave_id, config->egd.max_profile_accel);
 
     return 0;
   }
@@ -910,7 +923,6 @@ int jsd_egd_config_TLC_params(ecx_contextt* ecx_context, uint16_t slave_id,
           (void*)&config->egd.peak_current_limit)) {
     return 0;
   }
-
 
   if (!jsd_sdo_set_param_blocking(
           ecx_context, slave_id, jsd_egd_tlc_to_do("CL"), 1, JSD_SDO_DATA_FLOAT,
@@ -1028,9 +1040,9 @@ int jsd_egd_config_TLC_params(ecx_contextt* ecx_context, uint16_t slave_id,
   }
 
   int32_t um = 0;
-  if (!jsd_sdo_get_param_blocking(
-          ecx_context, slave_id, jsd_egd_tlc_to_do("UM"), 1, JSD_SDO_DATA_U32,
-          (void*)&um)) {
+  if (!jsd_sdo_get_param_blocking(ecx_context, slave_id,
+                                  jsd_egd_tlc_to_do("UM"), 1, JSD_SDO_DATA_U32,
+                                  (void*)&um)) {
     return 0;
   }
   MSG("EGD[%d] UM[1] = %d", slave_id, um);
@@ -1143,7 +1155,7 @@ void jsd_egd_update_state_from_PDO_data(jsd_t* self, uint16_t slave_id) {
     if (state->pub.actual_state_machine_state ==
         JSD_ELMO_STATE_MACHINE_STATE_FAULT) {
       jsd_sdo_signal_emcy_check(self);
-      state->new_reset = false; // clear any potentially ongoing reset request
+      state->new_reset = false;  // clear any potentially ongoing reset request
       state->fault_real_time = jsd_time_get_time_sec();
       state->fault_mono_time = jsd_time_get_mono_time_sec();
     }
@@ -1162,23 +1174,16 @@ void jsd_egd_update_state_from_PDO_data(jsd_t* self, uint16_t slave_id) {
   }
   state->last_actual_mode_of_operation = state->pub.actual_mode_of_operation;
 
-  state->pub.warning = state->txpdo.statusword >> 7 & 0x01;
-  state->pub.target_reached =
-      state->txpdo.statusword >> 10 & 0x01;
+  state->pub.warning        = state->txpdo.statusword >> 7 & 0x01;
+  state->pub.target_reached = state->txpdo.statusword >> 10 & 0x01;
 
   // Status Register states
-  state->pub.servo_enabled =
-      state->txpdo.status_register >> 4 & 0x01;
-  state->fault_occured_when_enabled =
-      state->txpdo.status_register >> 6 & 0x01;
-  state->pub.sto_engaged =
-      !(state->txpdo.status_register >> 14 & 0x01);
-  state->pub.motor_on =
-      state->txpdo.status_register >> 22 & 0x01;
-  state->pub.in_motion =
-      state->txpdo.status_register >> 23 & 0x01;
-  state->pub.hall_state =
-      state->txpdo.status_register >> 24 & 0x07;
+  state->pub.servo_enabled          = state->txpdo.status_register >> 4 & 0x01;
+  state->fault_occured_when_enabled = state->txpdo.status_register >> 6 & 0x01;
+  state->pub.sto_engaged = !(state->txpdo.status_register >> 14 & 0x01);
+  state->pub.motor_on    = state->txpdo.status_register >> 22 & 0x01;
+  state->pub.in_motion   = state->txpdo.status_register >> 23 & 0x01;
+  state->pub.hall_state  = state->txpdo.status_register >> 24 & 0x07;
 
   // STO status from status register with smart printing
   if (state->last_sto_engaged != state->pub.sto_engaged) {
@@ -1206,16 +1211,16 @@ void jsd_egd_update_state_from_PDO_data(jsd_t* self, uint16_t slave_id) {
   state->pub.analog_input_voltage = (double)state->txpdo.analog_input / 1000.0;
 
   // drive temp
-  state->pub.drive_temperature = state->txpdo.drive_temperature_deg_c;
+  // state->pub.drive_temperature = state->txpdo.drive_temperature_deg_c;
 }
 
 void jsd_egd_process_state_machine(jsd_t* self, uint16_t slave_id) {
   assert(self);
   assert(self->ecx_context.slavelist[slave_id].eep_id == JSD_EGD_PRODUCT_CODE);
 
-  jsd_error_cirq_t* error_cirq = &self->slave_errors[slave_id];
-  jsd_egd_private_state_t* state = &self->slave_states[slave_id].egd;
-  ec_errort error;
+  jsd_error_cirq_t*        error_cirq = &self->slave_errors[slave_id];
+  jsd_egd_private_state_t* state      = &self->slave_states[slave_id].egd;
+  ec_errort                error;
 
   switch (state->pub.actual_state_machine_state) {
     case JSD_ELMO_STATE_MACHINE_STATE_NOT_READY_TO_SWITCH_ON:
@@ -1236,26 +1241,25 @@ void jsd_egd_process_state_machine(jsd_t* self, uint16_t slave_id) {
       // Handle reset
       if (state->new_reset) {
         set_controlword(self, slave_id,
-          JSD_EGD_STATE_MACHINE_CONTROLWORD_ENABLE_OPERATION);
+                        JSD_EGD_STATE_MACHINE_CONTROLWORD_ENABLE_OPERATION);
 
-        state->requested_mode_of_operation = 
-          JSD_EGD_MODE_OF_OPERATION_PROF_POS;
+        state->requested_mode_of_operation = JSD_EGD_MODE_OF_OPERATION_PROF_POS;
 
-        set_mode_of_operation(self, slave_id, 
-          state->requested_mode_of_operation);
+        set_mode_of_operation(self, slave_id,
+                              state->requested_mode_of_operation);
 
         state->new_reset = false;
       }
       break;
     case JSD_ELMO_STATE_MACHINE_STATE_OPERATION_ENABLED:
 
-      state->pub.fault_code = JSD_EGD_FAULT_OKAY;
+      state->pub.fault_code      = JSD_EGD_FAULT_OKAY;
       state->pub.emcy_error_code = 0;
 
       // Handle halt
-      if (state->new_halt_command){
+      if (state->new_halt_command) {
         state->new_reset = false;
-        uint16_t cw = get_controlword(self, slave_id);
+        uint16_t cw      = get_controlword(self, slave_id);
         cw &= ~(0x01 << 2);  // Quickstop
         set_controlword(self, slave_id, cw);
 
@@ -1278,42 +1282,41 @@ void jsd_egd_process_state_machine(jsd_t* self, uint16_t slave_id) {
 
       // Only transition once the EMCY code can be extracted from the
       // error list
-      if(jsd_error_cirq_pop(error_cirq, &error)) {
-
+      if (jsd_error_cirq_pop(error_cirq, &error)) {
         // if newer than the state-machine issued fault
         if (ectime_to_sec(error.Time) > state->fault_real_time) {
           // TODO consider handling the other error types too
-          if(error.Etype == EC_ERR_TYPE_EMERGENCY){
+          if (error.Etype == EC_ERR_TYPE_EMERGENCY) {
             state->pub.emcy_error_code = error.ErrorCode;
-            state->pub.fault_code = 
-              jsd_egd_get_fault_code_from_ec_error(error);  
+            state->pub.fault_code = jsd_egd_get_fault_code_from_ec_error(error);
 
-            ERROR("EGD[%d] EMCY code: 0x%X, "
-              "jsd fault enum: %u, Description: %s", 
-              error.Slave,
-              state->pub.emcy_error_code,
-              state->pub.fault_code,
-              jsd_egd_fault_code_to_string(state->pub.fault_code));
+            ERROR(
+                "EGD[%d] EMCY code: 0x%X, "
+                "jsd fault enum: %u, Description: %s",
+                error.Slave, state->pub.emcy_error_code, state->pub.fault_code,
+                jsd_egd_fault_code_to_string(state->pub.fault_code));
 
-            MSG_DEBUG("EGD[%d] EMCY handled, transition to SWITCHED_ON_DISABLED", 
-              error.Slave);
+            MSG_DEBUG(
+                "EGD[%d] EMCY handled, transition to SWITCHED_ON_DISABLED",
+                error.Slave);
 
             // to SWITCHED_ON_DISABLED
             set_controlword(self, slave_id,
-                          JSD_EGD_STATE_MACHINE_CONTROLWORD_FAULT_RESET);
-
+                            JSD_EGD_STATE_MACHINE_CONTROLWORD_FAULT_RESET);
           }
         }
       } else if (jsd_time_get_mono_time_sec() >
                      (1.0 + state->fault_mono_time) &&
                  state->pub.fault_code != JSD_EGD_FAULT_UNKNOWN) {
-        // If we've been waiting for a long duration, the EMCY is not going to come
+        // If we've been waiting for a long duration, the EMCY is not going to
+        // come
         //   go ahead an advance the state machine to prevent infinite wait. May
         //   occur on startup.
-        WARNING("EGD[%d] in FAULT state but new EMCY code has not been heard", slave_id);
+        WARNING("EGD[%d] in FAULT state but new EMCY code has not been heard",
+                slave_id);
         state->pub.emcy_error_code = 0xFFFF;
-        state->pub.fault_code = JSD_EGD_FAULT_UNKNOWN;
-        
+        state->pub.fault_code      = JSD_EGD_FAULT_UNKNOWN;
+
         // to SWITCHED_ON_DISABLED
         set_controlword(self, slave_id,
                         JSD_EGD_STATE_MACHINE_CONTROLWORD_FAULT_RESET);
