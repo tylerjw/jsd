@@ -217,6 +217,8 @@ typedef struct {
   uint8_t  digital_output_cmd[JSD_EGD_NUM_DIGITAL_OUTPUTS];
   uint32_t drive_temperature;  ///< deg C
 
+  int32_t auxiliary_position;  ///< output encoder, counts
+
 } jsd_egd_state_t;
 
 /**
@@ -236,6 +238,7 @@ typedef struct __attribute__((__packed__)) {
   int8_t   mode_of_operation_display;  ///< 0x6061
   uint32_t dc_link_circuit_voltage;    ///< 0x6079
   uint32_t drive_temperature_deg_c;    ///< 0x2203 only works on newer firmware
+  int32_t  auxiliary_position;         ///< 0x20A0
 } jsd_egd_txpdo_data_t;
 
 /**

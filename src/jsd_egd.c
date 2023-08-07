@@ -722,7 +722,7 @@ int jsd_egd_config_PDO_mapping(ecx_contextt* ecx_context, uint16_t slave_id,
     return 0;
   }
 
-  uint16_t map_input_TxPDO[] = {0x0002, 0x1A00, 0x1A07};
+  uint16_t map_input_TxPDO[] = {0x0003, 0x1A00, 0x1A07, 0x1A1D};
 
   if (!jsd_sdo_set_ca_param_blocking(ecx_context, slave_id, 0x1C13, 0x00,
                                      sizeof(map_input_TxPDO),
@@ -1091,6 +1091,7 @@ void jsd_egd_update_state_from_PDO_data(jsd_t* self, uint16_t slave_id) {
   state->pub.actual_velocity = state->txpdo.velocity_actual_value;
   state->pub.actual_current  = (double)state->txpdo.current_actual_value *
                               (double)state->motor_rated_current / 1e6;
+  state->pub.auxiliary_position = state->txpdo.auxiliary_position;
 
   if (self->slave_configs[slave_id].egd.drive_cmd_mode ==
       JSD_EGD_DRIVE_CMD_MODE_CS) {
